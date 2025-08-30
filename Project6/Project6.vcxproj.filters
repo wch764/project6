@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Date.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Book.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BorrowInfo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LoginPage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BorrowStatisticsPage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Bookpage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ReaderInfoPage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="failmanage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="clearscreen.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="notification.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuPage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readers.dat">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="borrowinfo.dat">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="admins.dat">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="books.dat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Serializable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Page.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Action.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Date.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Book.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BorrowInfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="clearscreen.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BorrowStatisticsPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Bookpage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ReaderInfoPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="User.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Reader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Admin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="failmanage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="reservemanager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="librarysystem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="notificationcenter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
