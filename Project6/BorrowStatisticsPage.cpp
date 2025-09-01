@@ -8,7 +8,7 @@
 #include"clearscreen.h"
 #include"Book.h"
 #include"BorrowInfo.h"
-#include"failmanage.h"
+#include"failmanager.h"
 using namespace std;
 BorrowStatisticsPage::BorrowStatisticsPage(vector<BorrowInfo>& bis, vector<Book>& bs,User*u)
         : borrowInfos(bis), books(bs),currentUser(u) {

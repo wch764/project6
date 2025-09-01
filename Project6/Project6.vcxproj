@@ -20,16 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="clearscreen.cpp" />
-    <ClCompile Include="failmanage.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="failmanager.cpp" />
+    <ClCompile Include="failmanager.h" />
+    <ClCompile Include="main.cpp">
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
+    </ClCompile>
     <ClCompile Include="Book.cpp" />
     <ClCompile Include="Bookpage.cpp" />
     <ClCompile Include="BorrowInfo.cpp" />
     <ClCompile Include="BorrowStatisticsPage.cpp" />
     <ClCompile Include="Date.cpp" />
     <ClCompile Include="LoginPage.cpp" />
-    <ClCompile Include="MainMenuPage.cpp" />
     <ClCompile Include="notification.h" />
+    <ClCompile Include="rankingpage.cpp" />
+    <ClCompile Include="systemlogger.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="ReaderInfoPage.cpp" />
   </ItemGroup>
@@ -48,14 +52,14 @@
     <ClInclude Include="BorrowStatisticsPage.h" />
     <ClInclude Include="clearscreen.h" />
     <ClInclude Include="Date.h" />
-    <ClInclude Include="librarysystem.h" />
     <ClInclude Include="LoginPage.h" />
     <ClInclude Include="MainMenuPage.h" />
-    <ClInclude Include="failmanage.h" />
-    <ClInclude Include="notificationcenter.h" />
+    <ClInclude Include="Notificationmanager.h" />
     <ClInclude Include="Page.h" />
+    <ClInclude Include="rankingpage.h" />
     <ClInclude Include="Reader.h" />
     <ClInclude Include="reservemanager.h" />
+    <ClInclude Include="systemlogger.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="ReaderInfoPage.h" />
     <ClInclude Include="Serializable.h" />

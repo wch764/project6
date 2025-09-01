@@ -22,4 +22,7 @@ public:
 		d.currentDate();  // 调用非静态方法
 		return d;
 	}//静态方法
+	int getYear() const { return year; }
+	int getMonth() const { return month; }
+	int getDay() const { return day; }
 };

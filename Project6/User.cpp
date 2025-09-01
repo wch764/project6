@@ -92,3 +92,4 @@ string User::getUsername() const { return username; }
 string User::getPassword() const { return password; }
 string User::getName() const { return name; }
 Date User::getRegistrationDate() const { return registrationDate; }
+void User::addBorrowedCount() {}

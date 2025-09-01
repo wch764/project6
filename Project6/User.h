@@ -128,5 +128,6 @@ public:
     bool hasNotifications() const {
         return getUnreadNotificationCount() > 0;
     }
+    virtual void addBorrowedCount() ;
 };
 

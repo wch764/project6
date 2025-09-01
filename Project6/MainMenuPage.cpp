@@ -1,6 +1,5 @@
 // MainMenuPage.cpp - 对应的实现
 #include"MainMenuPage.h"
-#include"failmanage.h"
 #include"Bookpage.h"
 #include"BorrowStatisticsPage.h"
 #include"ReaderInfoPage.h"

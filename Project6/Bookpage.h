@@ -14,7 +14,7 @@
 #include <cctype>
 #include <unordered_map>
 #include <algorithm>
-#include"failmanage.h"
+#include"failmanager.h"
 #include"reservemanager.h"
 
 
@@ -35,6 +35,24 @@ public:
     void addbook();
     void deletebook();
     void modifybook();
+    void addBookReview(Book& book);
+    void showCategoryBooks(BookCategory category) const;
+    void showBooksByCategory() const;
+    void searchBooksWithCategory() const;
+    template<typename FieldGetter>
+    vector<Book> exactSearchWithCategory(
+        const string& query,
+        FieldGetter fieldGetter,
+        bool filterByCategory,
+        BookCategory category
+    ) const;
+    template<typename FieldGetter>
+    vector<Book> fuzzySearchWithCategory(
+        const string& query,
+        FieldGetter fieldGetter,
+        bool filterByCategory,
+        BookCategory category
+    ) const;
     // 查找用户函数
     User* finduser(const string& username) {
         cout << "正在查找用户: " << username << endl;

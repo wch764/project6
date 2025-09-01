@@ -42,16 +42,22 @@
     <ClCompile Include="User.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="failmanage.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="clearscreen.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="notification.h">
       <Filter>头文件</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuPage.cpp">
+    <ClCompile Include="rankingpage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="failmanager.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="failmanager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="systemlogger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,16 +119,16 @@
     <ClInclude Include="Admin.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="failmanage.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="reservemanager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="librarysystem.h">
+    <ClInclude Include="Notificationmanager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="notificationcenter.h">
+    <ClInclude Include="rankingpage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="systemlogger.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
