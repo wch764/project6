@@ -12,9 +12,10 @@
 #include "clearscreen.h"
 #include "failmanager.h"
 #include "rankingpage.h"
+#include "bookdetailpage.h" 
 
-RankingPage::RankingPage(std::vector<Reader>& rdrs, std::vector<Book>& bks, User* user)
-    : readers(rdrs), books(bks), currentUser(user) {
+RankingPage::RankingPage(std::vector<Reader>& rdrs, std::vector<Book>& bks, User* user, function<void(const string&)> cb)
+    : readers(rdrs), books(bks), currentUser(user), borrowCallback(cb) {
 }
 
 bool RankingPage::display() const {
@@ -75,6 +76,67 @@ void RankingPage::performAction() {
         }
     }
 }
+void RankingPage::displayRankingBooksWithSelection(const vector<Book>& topBooks){
+    while (true) {
+        
+       
+
+        cout << left << setw(6) << "序号"
+            << setw(6) << "排名"
+            << setw(15) << "ISBN"
+            << setw(30) << "书名"
+            << setw(18) << "作者"
+            << setw(8) << "借阅量"
+            << setw(10) << "评分" << endl;
+        cout << string(95, '-') << endl;
+
+        // 显示带序号的排行榜
+        for (size_t i = 0; i < topBooks.size(); ++i) {
+            const Book& book = topBooks[i];
+            cout << left << setw(6) << ("[" + to_string(i + 1) + "]")
+                << setw(6) << (i + 1)
+                << setw(15) << book.getISBN()
+                << setw(30) << (book.getTitle().length() > 29 ?
+                    book.getTitle().substr(0, 26) + "..." : book.getTitle())
+                << setw(18) << (book.getAuthor().length() > 17 ?
+                    book.getAuthor().substr(0, 14) + "..." : book.getAuthor())
+                << setw(8) << book.getTotalBorrowCount();
+
+            // 显示评分信息
+            if (book.getReviewCount() > 0) {
+                cout << setw(10) << (to_string(book.getAverageRating()).substr(0, 3) + "星");
+            }
+            else {
+                cout << setw(10) << "暂无评分";
+            }
+            cout << endl;
+        }
+
+        cout << "\n请选择要查看的书籍序号 (输入0退出)：";
+
+        int choice;
+        if (validateInt(choice)) {
+            if (choice == 0) {
+                return; // 退出
+            }
+            else if (choice >= 1 && choice <= static_cast<int>(topBooks.size())) {
+               
+
+                // 创建并显示书籍详细页面，传入回调函数
+                BookDetailPage detailPage(topBooks[choice - 1], borrowCallback);
+                detailPage.display();
+            }
+            else {
+                cout << "无效序号！请重新输入。\n";
+                system("pause");
+            }
+        }
+        else {
+            cout << "输入无效！请输入数字。\n";
+            system("pause");
+        }
+    }
+}
 
 void RankingPage::showReaderBorrowRanking() const {
     clearscreen();
@@ -120,7 +182,7 @@ void RankingPage::showReaderBorrowRanking() const {
 }
 
 // 图书借阅量排行榜
-void RankingPage::showBookBorrowRanking() const {
+void RankingPage::showBookBorrowRanking() {
     clearscreen();
     std::cout << "=== 图书借阅量排行榜（前100名）===" << std::endl;
 
@@ -131,39 +193,20 @@ void RankingPage::showBookBorrowRanking() const {
             return a.getTotalBorrowCount() > b.getTotalBorrowCount();
         });
 
-    std::cout << std::left << std::setw(6) << "排名"
-        << std::setw(15) << "ISBN"
-        << std::setw(25) << "书名"
-        << std::setw(15) << "作者"
-        << std::setw(20) << "分类"
-        << std::setw(8) << "借阅量" << std::endl;
-    std::cout << std::string(95, '-') << std::endl;
+    
 
-    int rank = 1;
-    int displayCount = std::min(static_cast<size_t>(100), sortedBooks.size());
-    bool hasData = false;
+    // 按借阅量排序
+    std::sort(sortedBooks.begin(), sortedBooks.end(),
+        [](const Book& a, const Book& b) {
+            return a.getTotalBorrowCount() > b.getTotalBorrowCount();
+        });
+    int displayCount = min(static_cast<size_t>(100), sortedBooks.size());
+    vector<Book> topBooks(sortedBooks.begin(), sortedBooks.begin() + displayCount);
 
-    // 修复：移除 getTotalBorrowCount() > 0 的限制，显示所有图书
-    for (int i = 0; i < displayCount; i++) {
-        const Book& book = sortedBooks[i];
-        std::cout << std::left << std::setw(6) << rank++
-            << std::setw(15) << book.getISBN()
-            << std::setw(25) << (book.getTitle().length() > 24 ?
-                book.getTitle().substr(0, 21) + "..." : book.getTitle())
-            << std::setw(15) << (book.getAuthor().length() > 14 ?
-                book.getAuthor().substr(0, 11) + "..." : book.getAuthor())
-            << std::setw(20) << book.getCategoryName().substr(0, 19)
-            << std::setw(8) << book.getTotalBorrowCount() << std::endl;
-        hasData = true;
-    }
-
-    if (!hasData) {
-        std::cout << "暂无图书数据。" << std::endl;
-    }
+    displayRankingBooksWithSelection(topBooks);
 }
-
 // 图书评分排行榜
-void RankingPage::showBookRatingRanking() const {
+void RankingPage::showBookRatingRanking()  {
     clearscreen();
     std::cout << "=== 图书评分排行榜（前100名）===" << std::endl;
 
@@ -184,39 +227,25 @@ void RankingPage::showBookRatingRanking() const {
     std::sort(ratedBooks.begin(), ratedBooks.end(),
         [](const Book& a, const Book& b) {
             if (a.getAverageRating() == b.getAverageRating()) {
-                return a.getReviewCount() > b.getReviewCount(); // 评分相同时按评论数排序
+                return a.getReviewCount() > b.getReviewCount();
             }
             return a.getAverageRating() > b.getAverageRating();
         });
 
-    std::cout << std::left << std::setw(6) << "排名"
-        << std::setw(15) << "ISBN"
-        << std::setw(25) << "书名"
-        << std::setw(15) << "作者"
-        << std::setw(20) << "分类"
-        << std::setw(8) << "评分"
-        << std::setw(8) << "评论数" << std::endl;
-    std::cout << std::string(100, '-') << std::endl;
+    
 
     int rank = 1;
-    int displayCount = std::min(static_cast<size_t>(100), ratedBooks.size());
+    int displayCount = std::min(static_cast<size_t>(30), ratedBooks.size());
+    vector<Book> topBooks(ratedBooks.begin(), ratedBooks.begin() + displayCount);
 
-    for (int i = 0; i < displayCount; i++) {
-        const Book& book = ratedBooks[i];
-        std::cout << std::left << std::setw(6) << rank++
-            << std::setw(15) << book.getISBN()
-            << std::setw(25) << (book.getTitle().length() > 24 ?
-                book.getTitle().substr(0, 21) + "..." : book.getTitle())
-            << std::setw(15) << (book.getAuthor().length() > 14 ?
-                book.getAuthor().substr(0, 11) + "..." : book.getAuthor())
-            << std::setw(20) << book.getCategoryName().substr(0, 19)
-            << std::setw(8) << std::fixed << std::setprecision(1) << book.getAverageRating()
-            << std::setw(8) << book.getReviewCount() << std::endl;
-    }
+    displayRankingBooksWithSelection(topBooks);
+
+   
+   
 }
 
 // 分类借阅排行榜
-void RankingPage::showCategoryBorrowRanking() const {
+void RankingPage::showCategoryBorrowRanking(){
     while (true) {
         clearscreen();
         std::cout << "=== 分类借阅排行榜 ===" << std::endl;
@@ -257,7 +286,7 @@ void RankingPage::showCategoryBorrowRanking() const {
 }
 
 // 分类评分排行榜
-void RankingPage::showCategoryRatingRanking() const {
+void RankingPage::showCategoryRatingRanking() {
     while (true) {
         clearscreen();
         std::cout << "=== 分类评分排行榜 ===" << std::endl;
@@ -298,7 +327,7 @@ void RankingPage::showCategoryRatingRanking() const {
 }
 
 // 显示特定分类的借阅排行榜
-void RankingPage::showCategorySpecificBorrowRanking(BookCategory category) const {
+void RankingPage::showCategorySpecificBorrowRanking(BookCategory category)  {
     clearscreen();
 
     // 筛选指定分类的图书
@@ -320,39 +349,20 @@ void RankingPage::showCategorySpecificBorrowRanking(BookCategory category) const
             return a.getTotalBorrowCount() > b.getTotalBorrowCount();
         });
 
-    std::cout << "=== " << categoryBooks[0].getCategoryName() << " - 借阅排行榜（前30名）===" << std::endl;
-
-    std::cout << std::left << std::setw(6) << "排名"
-        << std::setw(15) << "ISBN"
-        << std::setw(30) << "书名"
-        << std::setw(18) << "作者"
-        << std::setw(8) << "借阅量" << std::endl;
-    std::cout << std::string(80, '-') << std::endl;
-
+    
     int rank = 1;
     int displayCount = std::min(static_cast<size_t>(30), categoryBooks.size());
-    bool hasData = false;
+    
 
-    // 修复：移除 getTotalBorrowCount() > 0 的限制
-    for (int i = 0; i < displayCount; i++) {
-        const Book& book = categoryBooks[i];
-        std::cout << std::left << std::setw(6) << rank++
-            << std::setw(15) << book.getISBN()
-            << std::setw(30) << (book.getTitle().length() > 29 ?
-                book.getTitle().substr(0, 26) + "..." : book.getTitle())
-            << std::setw(18) << (book.getAuthor().length() > 17 ?
-                book.getAuthor().substr(0, 14) + "..." : book.getAuthor())
-            << std::setw(8) << book.getTotalBorrowCount() << std::endl;
-        hasData = true;
-    }
+    
+    vector<Book> topBooks(categoryBooks.begin(), categoryBooks.begin() + displayCount);
 
-    if (!hasData) {
-        std::cout << "该分类下暂无图书数据。" << std::endl;
-    }
+    displayRankingBooksWithSelection(topBooks);
+
 }
 
 // 显示特定分类的评分排行榜
-void RankingPage::showCategorySpecificRatingRanking(BookCategory category) const {
+void RankingPage::showCategorySpecificRatingRanking(BookCategory category){
     clearscreen();
 
     // 筛选指定分类且有评分的图书
@@ -377,28 +387,11 @@ void RankingPage::showCategorySpecificRatingRanking(BookCategory category) const
             return a.getAverageRating() > b.getAverageRating();
         });
 
-    std::cout << "=== " << categoryBooks[0].getCategoryName() << " - 评分排行榜（前30名）===" << std::endl;
-
-    std::cout << std::left << std::setw(6) << "排名"
-        << std::setw(15) << "ISBN"
-        << std::setw(30) << "书名"
-        << std::setw(15) << "作者"
-        << std::setw(8) << "评分"
-        << std::setw(8) << "评论数" << std::endl;
-    std::cout << std::string(85, '-') << std::endl;
 
     int rank = 1;
     int displayCount = std::min(static_cast<size_t>(30), categoryBooks.size());
 
-    for (int i = 0; i < displayCount; i++) {
-        const Book& book = categoryBooks[i];
-        std::cout << std::left << std::setw(6) << rank++
-            << std::setw(15) << book.getISBN()
-            << std::setw(30) << (book.getTitle().length() > 29 ?
-                book.getTitle().substr(0, 26) + "..." : book.getTitle())
-            << std::setw(15) << (book.getAuthor().length() > 14 ?
-                book.getAuthor().substr(0, 11) + "..." : book.getAuthor())
-            << std::setw(8) << std::fixed << std::setprecision(1) << book.getAverageRating()
-            << std::setw(8) << book.getReviewCount() << std::endl;
-    }
+    vector<Book> topBooks(categoryBooks.begin(), categoryBooks.begin() + displayCount);
+
+    displayRankingBooksWithSelection(topBooks);
 }

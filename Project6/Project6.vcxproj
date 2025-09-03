@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="bookdetailpage.cpp" />
+    <ClCompile Include="bookdetailpage.h" />
     <ClCompile Include="clearscreen.cpp" />
     <ClCompile Include="failmanager.cpp" />
     <ClCompile Include="failmanager.h" />

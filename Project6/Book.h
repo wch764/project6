@@ -47,18 +47,19 @@ private:
     string introduction;
     int quantity;
     int borrowed;
+    int totalBorrowCount;  
     int m_reserved = 0;
     string reservedFor;
     Date reserveExpiry;
 
     // 新增属性
     BookCategory category;              // 分类
-    int totalBorrowCount=0;              // 总借阅数
+              // 总借阅数
     vector<Review> reviews;            // 评论列表
 
 public:
     Book(const string& is = "", const string& t = "", const string& a = "",
-        const string& k = "", const string& i = "", int q = 0,
+        const string& k = "", const string& i = "", int q = 0,int to=0,
         BookCategory cat = BookCategory::COMPUTER_SCIENCE_INFORMATION);
 
     // 原有的setter方法
@@ -71,7 +72,10 @@ public:
     void setCategory(BookCategory cat) { category = cat; }
     BookCategory getCategory() const { return category; }
     int getTotalBorrowCount() const { return totalBorrowCount; }
-    void incrementBorrowCount() { totalBorrowCount++; }
+    void addTotalBorrowCount() {
+        totalBorrowCount++;
+        
+    }
 
     // 评分相关方法
     void addReview(const string& username, int rating, const string& comment) {
@@ -233,7 +237,7 @@ public:
     bool borrowBook() {
         if (isAvailable()) {
             borrowed++;
-            totalBorrowCount++; // 增加总借阅数
+            addTotalBorrowCount();
             return true;
         }
         return false;
@@ -255,6 +259,7 @@ public:
     int getBorrowed() const { return borrowed; }
     int getAvailable() const { return quantity - borrowed - m_reserved; }
     int getReservedCount() const { return m_reserved; }
+    int addTotalBorrowedCount(){ totalBorrowCount++; }
     string getintro() const { return introduction; }
     vector<string> getkeys() const { return keywords; }
 

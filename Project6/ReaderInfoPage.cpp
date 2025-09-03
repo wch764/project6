@@ -48,20 +48,20 @@ void ReaderInfoPage::performAction() {
         if (validateInt(choice)) {
             if (isAdmin) {
                 switch (choice) {
-                case 1: showAllReaders(); break;
-                case 2: registerNewUser(); break;
-                case 3: modifyGraduationDate(); break;
-                case 4: processFinePay(); break;
-                case 5: deleteReader(); break;
+                case 1: showAllReaders(); system("pause"); break;
+                case 2: registerNewUser(); system("pause"); break;
+                case 3: modifyGraduationDate(); system("pause"); break;
+                case 4: processFinePay(); system("pause"); break;
+                case 5: deleteReader(); system("pause"); break;
                 case 6: return;
                 default: std::cout << "无效选择!" << std::endl;
                 }
             }
             else {
                 switch (choice) {
-                case 1: showPersonalInfo(); break;
-                case 2: modifyUsername(); break;
-                case 3: modifyPassword(); break;
+                case 1: showPersonalInfo(); system("pause"); break;
+                case 2: modifyUsername(); system("pause"); break;
+                case 3: modifyPassword(); system("pause"); break;
                 case 4: return;
                 default: std::cout << "无效选择!" << std::endl;
                 }
@@ -368,7 +368,7 @@ void ReaderInfoPage::modifyUsername() {
     std::cout << "=== 修改用户名 ===" << std::endl;
 
     std::string newUsername;
-    std::cin.ignore();
+    clearInputBuffer();
     std::cout << "输入新的用户名: ";
     std::getline(std::cin, newUsername);
 
@@ -386,10 +386,7 @@ void ReaderInfoPage::modifyUsername() {
         [this](const Reader& r) { return r.getUsername() == currentUser->getUsername(); });
 
     if (currentIt != readers.end()) {
-        // 注意：这里需要修改User基类的用户名，但User类的username是private
-        // 实际实现中可能需要为User类添加setUsername方法
-        std::cout << "用户名修改功能需要User类支持setUsername方法。" << std::endl;
-        std::cout << "当前系统暂不支持用户名修改。" << std::endl;
+		currentIt->changeUsername(newUsername);
     }
 }
 
@@ -399,7 +396,7 @@ void ReaderInfoPage::modifyPassword() {
     std::cout << "=== 修改密码 ===" << std::endl;
 
     std::string oldPassword, newPassword;
-    std::cin.ignore();
+    clearInputBuffer();
     std::cout << "输入当前密码: ";
     std::getline(std::cin, oldPassword);
 

@@ -44,15 +44,14 @@ public:
 
     // 标记为已读
     void markAsRead() {
-        // 罚款通知永远不标记为已读
-        if (type != OVERDUE_FINE) {
+        
             isRead = true;
-        }
+        
     }
 
     // 检查是否应该显示（未读或罚款通知）
     bool shouldDisplay() const {
-        return !isRead || type == OVERDUE_FINE;
+        return !isRead;
     }
 
     std::string getMessage() const {

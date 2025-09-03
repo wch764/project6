@@ -21,7 +21,7 @@ bool BookPage::display() const{
         if (!i)
         {
             cout << "===图书借阅===" << endl;
-            cout << "1. 查看所有图书" << endl;
+            cout << "1. 查看图书" << endl;
             cout << "2. 查询图书" << endl;
             cout << "3. 借书/预约图书" << endl;
             cout << "4. 续借" << endl;
@@ -31,7 +31,7 @@ bool BookPage::display() const{
         if(i)
         {
             cout << "===图书管理===" << endl;
-            cout << "1. 查看所有图书" << endl;
+            cout << "1. 查看图书" << endl;
             cout << "2. 查询图书" << endl;
             cout << "3. 编辑图书信息" << endl;
             cout << "4. 返回主菜单" << endl;
@@ -50,14 +50,21 @@ void  BookPage::performAction() {
             {
                 switch (choice) {
                 case 1:
-                    showAllBooks();
+                    showBooksByCategory();
                     break;
                 case 2:
-                    searchbooks();
+                    searchBooksWithCategory();
                     break;
                 case 3:
-                    borrowBook();
+                {
+                    clearscreen();
+                    string isbn;
+                    cout << "输入要借阅的图书ISBN: ";
+                    getline(cin, isbn);
+                   
+                    borrowBook(isbn);
                     break;
+                }
                 case 4:
                     renewBook();
                     break;
@@ -80,10 +87,10 @@ void  BookPage::performAction() {
 
                 switch (choice) {
                 case 1:
-                    showAllBooks();
+                    showBooksByCategory();
                     break;
                 case 2:
-                    searchbooks();
+                    searchBooksWithCategory();
                     break;
                 case 3:
                     editbooks();
@@ -246,35 +253,82 @@ void BookPage::modifybook() {
     }
 }
 
-void  BookPage::showAllBooks() const {
+void  BookPage::showAllBooks(){
     clearscreen();
     cout << "=== 图书列表 ===" << endl;
-    for (const auto& book : books) {
-        cout << "ISBN: " << book.getISBN()
-            << ", 书名: " << book.getTitle()
-            << ", 作者: " << book.getAuthor()
-            << ", 总数: " << book.getQuantity()
-            << ", 可借: " << book.getAvailable() << endl;
-        cout << "关键词：";
-        if (book.getkeys().empty()) {
-            cout << "(无)";
+    vector<Book> allBooks(books.begin(), books.end());
+    displayCategoryBooksWithSelection(allBooks, "所有图书");
+}
+
+void BookPage::displayCategoryBooksWithSelection(const vector<Book>& bookList, const string& title) {
+    while (true) {
+        clearscreen();
+        cout << "=== " << title << " ===" << endl;
+        cout << "共 " << bookList.size() << " 本图书：\n\n";
+
+        // 显示带序号的图书列表
+        for (size_t i = 0; i < bookList.size(); ++i) {
+            const Book& book = bookList[i];
+            cout << "[" << (i + 1) << "] ";
+            cout << "ISBN: " << book.getISBN()
+                << ", 书名: " << book.getTitle()
+                << ", 作者: " << book.getAuthor()
+                << ", 总数: " << book.getQuantity()
+                << ", 可借: " << book.getAvailable()
+                << ", 总借阅: " << book.getTotalBorrowCount();
+            if (book.getReviewCount() > 0) {
+                cout << ", 评分: " << fixed << setprecision(1) << book.getAverageRating() << "星";
+            }
+            cout << endl;
+
+            // 显示关键词
+            cout << "    关键词: ";
+            if (book.getkeys().empty()) {
+                cout << "(无)";
+            }
+            else {
+                for (const string& key : book.getkeys()) {
+                    cout << key << " ";
+                }
+            }
+            cout << endl;
+
+            // 显示简介
+            cout << "    简介: " << book.getintro() << endl;
+            cout << "    ----------------------------" << endl;
         }
-        else {
-            for (const string& key : book.getkeys())
-            {
-                cout << key<<' ';
+
+        cout << "\n请选择要查看的书籍序号 (输入0退出)：";
+
+        int choice;
+        if (validateInt(choice)) {
+            if (choice == 0) {
+                return; // 退出
+            }
+            else if (choice >= 1 && choice <= static_cast<int>(bookList.size())) {
+                auto borrowCallback = [this](const string& isbn) {
+                    this->borrowBook(isbn);
+                    };
+
+                // 创建并显示书籍详细页面，传入回调函数
+                BookDetailPage detailPage(bookList[choice - 1], borrowCallback);
+                detailPage.display();
+                // 查看详细信息后返回到列表页面
+            }
+            else {
+                cout << "无效序号！请重新输入。\n";
+                system("pause");
             }
         }
-            cout << "简介：" << book.getintro() << endl;
-
-        
+        else {
+            cout << "输入无效！请输入数字。\n";
+            system("pause");
+        }
     }
 }
-void  BookPage::borrowBook() {
-        clearscreen();
-        string isbn;
-        cout << "输入要借阅的图书ISBN: ";
-        getline(cin, isbn);
+
+void  BookPage::borrowBook(const string isbn) {
+       
         auto bookIt = find_if(books.begin(), books.end(),
             [&isbn](const Book& b) { return b.getISBN() == isbn; });//find_if算法加lambda表达式
 
@@ -288,7 +342,7 @@ void  BookPage::borrowBook() {
                 cout << "该书已全部借出!是否要进行预约(Y/N)" << endl;
                 char choice;
                 cin >> choice;
-
+                cin.ignore();
                 if (choice == 'y' || choice == 'Y') {
                     reserveBook(isbn);
                 }
@@ -392,7 +446,7 @@ void BookPage::addBookReview(Book& book) {
     cout << "当前平均评分: " << fixed << setprecision(1) << book.getAverageRating() << " 星" << endl;
 }
 // 按分类显示图书
-void BookPage::showBooksByCategory() const {
+void BookPage::showBooksByCategory(){
     clearscreen();
     cout << "=== 按分类查看图书 ===" << endl;
     cout << "请选择要查看的分类:" << endl;
@@ -431,7 +485,7 @@ void BookPage::showBooksByCategory() const {
     }
 }
 // 显示特定分类的图书
-void BookPage::showCategoryBooks(BookCategory category) const {
+void BookPage::showCategoryBooks(BookCategory category) {
     // 获取分类名称
     string categoryName;
     switch (category) {
@@ -448,43 +502,23 @@ void BookPage::showCategoryBooks(BookCategory category) const {
     default: categoryName = "未知分类"; break;
     }
 
-    cout << "=== " << categoryName << " 类图书 ===" << endl;
-
-    bool found = false;
+    // 收集该分类的所有图书
+    vector<Book> categoryBooks;
     for (const auto& book : books) {
         if (book.getCategory() == category) {
-            found = true;
-            cout << "ISBN: " << book.getISBN()
-                << ", 书名: " << book.getTitle()
-                << ", 作者: " << book.getAuthor()
-                << ", 总数: " << book.getQuantity()
-                << ", 可借: " << book.getAvailable()
-                << ", 总借阅: " << book.getTotalBorrowCount();
-
-            if (book.getReviewCount() > 0) {
-                cout << ", 评分: " << fixed << setprecision(1) << book.getAverageRating() << "星";
-            }
-            cout << endl;
-
-            // 显示关键词和简介
-            cout << "关键词: ";
-            if (book.getkeys().empty()) {
-                cout << "(无)";
-            }
-            else {
-                for (const string& key : book.getkeys()) {
-                    cout << key << " ";
-                }
-            }
-            cout << endl;
-            cout << "简介: " << book.getintro() << endl;
-            cout << "----------------------------" << endl;
+            categoryBooks.push_back(book);
         }
     }
 
-    if (!found) {
+    if (categoryBooks.empty()) {
+        cout << "=== " << categoryName << " 类图书 ===" << endl;
         cout << "该分类下暂无图书。" << endl;
+        system("pause");
+        return;
     }
+
+    // 显示分类图书列表并处理用户选择
+    displayCategoryBooksWithSelection(categoryBooks, categoryName);
 }
         
  
@@ -554,7 +588,7 @@ void BookPage::renewBook() {
         cout << "续借失败。\n";
     }
 }
-void BookPage::searchBooksWithCategory() const {
+void BookPage::searchBooksWithCategory()  {
     cout << "是否要限定搜索的图书分类？(y/n): ";
     char useCategory;
     cin >> useCategory;
@@ -586,125 +620,106 @@ void BookPage::searchBooksWithCategory() const {
             cout << "无效选择，将在所有分类中搜索。" << endl;
         }
     }
-
-    // 执行原有的搜索逻辑，但添加分类筛选
-    cout << "请选择搜索方式：\n";
-    cout << "1. 精确搜索（完全匹配）\n";
-    cout << "2. 模糊搜索（相似度匹配）\n";
-    cout << "请输入选项：";
-
-    int searchType;
-    if (validateInt(searchType)) {
-        if (searchType != 1 && searchType != 2) {
-            cerr << "无效输入" << endl;
-            return;
-        }
-        clearscreen();
-        cout << "请选择搜索字段：\n";
-        cout << "1. ISBN\n";
-        cout << "2. 书名\n";
-        cout << "3. 作者\n";
-        cout << "4. 关键词\n";
-        cout << "5. 简介\n";
+    if (filterByCategory)
+    {
+        // 执行原有的搜索逻辑，但添加分类筛选
+        cout << "请选择搜索方式：\n";
+        cout << "1. 精确搜索（完全匹配）\n";
+        cout << "2. 模糊搜索（相似度匹配）\n";
         cout << "请输入选项：";
-        int fieldChoice;
 
-        if (validateInt(fieldChoice, "请输入选项：")) {
-            if (fieldChoice < 1 || fieldChoice > 5) {
-                cerr << "无效选项！" << endl;
+        int searchType;
+        if (validateInt(searchType)) {
+            if (searchType != 1 && searchType != 2) {
+                cerr << "无效输入" << endl;
                 return;
             }
-            cout << "请输入搜索内容：";
-            cin.ignore();
-            string query;
-            getline(cin, query);
+            clearscreen();
+            cout << "请选择搜索字段：\n";
+            cout << "1. ISBN\n";
+            cout << "2. 书名\n";
+            cout << "3. 作者\n";
+            cout << "4. 关键词\n";
+            cout << "5. 简介\n";
+            cout << "请输入选项：";
+            int fieldChoice;
 
-            vector<Book> results;
+            if (validateInt(fieldChoice, "请输入选项：")) {
+                if (fieldChoice < 1 || fieldChoice > 5) {
+                    cerr << "无效选项！" << endl;
+                    return;
+                }
+                cout << "请输入搜索内容：";
+                
+                string query;
+                getline(cin, query);
 
-            // 使用带分类筛选的搜索方法
-            switch (fieldChoice) {
-            case 1: // ISBN
-                if (searchType == 1) {
-                    results = exactSearchWithCategory(query, [](const Book& b) { return b.getISBN(); }, filterByCategory, selectedCategory);
-                }
-                else {
-                    results = fuzzySearchWithCategory(query, [](const Book& b) { return b.getISBN(); }, filterByCategory, selectedCategory);
-                }
-                break;
-            case 2: // 书名
-                if (searchType == 1) {
-                    results = exactSearchWithCategory(query, [](const Book& b) { return b.getTitle(); }, filterByCategory, selectedCategory);
-                }
-                else {
-                    results = fuzzySearchWithCategory(query, [](const Book& b) { return b.getTitle(); }, filterByCategory, selectedCategory);
-                }
-                break;
-            case 3: // 作者
-                if (searchType == 1) {
-                    results = exactSearchWithCategory(query, [](const Book& b) { return b.getAuthor(); }, filterByCategory, selectedCategory);
-                }
-                else {
-                    results = fuzzySearchWithCategory(query, [](const Book& b) { return b.getAuthor(); }, filterByCategory, selectedCategory);
-                }
-                break;
-            case 4: // 关键词
-                if (searchType == 1) {
-                    results = exactSearchWithCategory(query, [](const Book& b) {
-                        string keywordsStr;
-                        for (const auto& kw : b.getkeys()) {
-                            keywordsStr += kw + " ";
-                        }
-                        return keywordsStr;
-                        }, filterByCategory, selectedCategory);
-                }
-                else {
-                    results = fuzzySearchWithCategory(query, [](const Book& b) {
-                        string keywordsStr;
-                        for (const auto& kw : b.getkeys()) {
-                            keywordsStr += kw + " ";
-                        }
-                        return keywordsStr;
-                        }, filterByCategory, selectedCategory);
-                }
-                break;
-            case 5: // 简介
-                if (searchType == 1) {
-                    results = exactSearchWithCategory(query, [](const Book& b) { return b.getintro(); }, filterByCategory, selectedCategory);
-                }
-                else {
-                    results = fuzzySearchWithCategory(query, [](const Book& b) { return b.getintro(); }, filterByCategory, selectedCategory);
-                }
-                break;
-            default:
-                cerr << "无效选项！\n";
-                return;
-            }
+                vector<Book> results;
 
-            // 显示搜索结果
-            if (results.empty()) {
-                cout << "未找到匹配的书籍。\n";
-            }
-            else {
-                cout << "找到 " << results.size() << " 本书：\n";
-                for (const Book& book : results) {
-                    cout << "ISBN: " << book.getISBN() << "\n";
-                    cout << "书名: " << book.getTitle() << "\n";
-                    cout << "作者: " << book.getAuthor() << "\n";
-                    cout << "分类: " << book.getCategoryName() << "\n";
-                    cout << "可借数量: " << book.getAvailable() << "\n";
-                    cout << "总借阅次数: " << book.getTotalBorrowCount() << "\n";
-
-                    if (book.getReviewCount() > 0) {
-                        cout << "平均评分: " << fixed << setprecision(1) << book.getAverageRating() << " 星 (" << book.getReviewCount() << " 条评论)\n";
+                // 使用带分类筛选的搜索方法
+                switch (fieldChoice) {
+                case 1: // ISBN
+                    if (searchType == 1) {
+                        results = exactSearchWithCategory(query, [](const Book& b) { return b.getISBN(); }, filterByCategory, selectedCategory);
                     }
                     else {
-                        cout << "暂无评分\n";
+                        results = fuzzySearchWithCategory(query, [](const Book& b) { return b.getISBN(); }, filterByCategory, selectedCategory);
                     }
-                    cout << "----------------------------\n";
+                    break;
+                case 2: // 书名
+                    if (searchType == 1) {
+                        results = exactSearchWithCategory(query, [](const Book& b) { return b.getTitle(); }, filterByCategory, selectedCategory);
+                    }
+                    else {
+                        results = fuzzySearchWithCategory(query, [](const Book& b) { return b.getTitle(); }, filterByCategory, selectedCategory);
+                    }
+                    break;
+                case 3: // 作者
+                    if (searchType == 1) {
+                        results = exactSearchWithCategory(query, [](const Book& b) { return b.getAuthor(); }, filterByCategory, selectedCategory);
+                    }
+                    else {
+                        results = fuzzySearchWithCategory(query, [](const Book& b) { return b.getAuthor(); }, filterByCategory, selectedCategory);
+                    }
+                    break;
+                case 4: // 关键词
+                    if (searchType == 1) {
+                        results = exactSearchWithCategory(query, [](const Book& b) {
+                            string keywordsStr;
+                            for (const auto& kw : b.getkeys()) {
+                                keywordsStr += kw + " ";
+                            }
+                            return keywordsStr;
+                            }, filterByCategory, selectedCategory);
+                    }
+                    else {
+                        results = fuzzySearchWithCategory(query, [](const Book& b) {
+                            string keywordsStr;
+                            for (const auto& kw : b.getkeys()) {
+                                keywordsStr += kw + " ";
+                            }
+                            return keywordsStr;
+                            }, filterByCategory, selectedCategory);
+                    }
+                    break;
+                case 5: // 简介
+                    if (searchType == 1) {
+                        results = exactSearchWithCategory(query, [](const Book& b) { return b.getintro(); }, filterByCategory, selectedCategory);
+                    }
+                    else {
+                        results = fuzzySearchWithCategory(query, [](const Book& b) { return b.getintro(); }, filterByCategory, selectedCategory);
+                    }
+                    break;
+                default:
+                    cerr << "无效选项！\n";
+                    return;
                 }
+                // 显示搜索结果
+                displaySearchResults(results);
             }
         }
     }
+    else { searchbooks(); }
 }
 // 带分类筛选的精确搜索
 template<typename FieldGetter>
@@ -722,6 +737,7 @@ vector<Book> BookPage::exactSearchWithCategory(
         }
 
         string fieldValue = fieldGetter(book);
+       
         if (match(query, fieldValue)) {
             results.push_back(book);
         }

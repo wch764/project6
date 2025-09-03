@@ -167,23 +167,23 @@ void initializeSampleData(vector<Book>& books, vector<Reader>& readers, vector<A
 
         // 添加不同分类的示例图书
         books.emplace_back("9787111636667", "C++ Primer", "Stanley Lippman",
-            "编程 C++ 计算机", "经典C++教程", 5,
+            "编程 C++ 计算机", "经典C++教程", 5,0,
             BookCategory::COMPUTER_SCIENCE_INFORMATION);
 
         books.emplace_back("9787302517969", "深入理解计算机系统", "Randal Bryant",
-            "计算机 系统", "计算机系统经典教材", 3,
+            "计算机 系统", "计算机系统经典教材", 3,0,
             BookCategory::COMPUTER_SCIENCE_INFORMATION);
 
         books.emplace_back("9787115419663", "算法导论", "Thomas Cormen",
-            "算法 数据结构", "算法设计经典教材", 4,
+            "算法 数据结构", "算法设计经典教材", 4,0,
             BookCategory::NATURAL_SCIENCES_MATHEMATICS);
 
         books.emplace_back("9787020002207", "红楼梦", "曹雪芹",
-            "古典文学 名著", "中国古典文学四大名著之一", 10,
+            "古典文学 名著", "中国古典文学四大名著之一", 10,0,
             BookCategory::LITERATURE_RHETORIC);
 
         books.emplace_back("9787100018616", "哲学通史", "冯友兰",
-            "哲学 思想史", "中国哲学通史", 6,
+            "哲学 思想史", "中国哲学通史", 6,0,
             BookCategory::PHILOSOPHY_PSYCHOLOGY);
 
         saveDataToFile("books.dat", books);

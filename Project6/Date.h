@@ -12,7 +12,7 @@ public:
 	bool operator<(const Date&)const;
 	bool operator==(const Date&)const;
 	int operator-(const Date&)const;//返回两个日期之差
-	void displayDate() const;
+	void displayDate(std::ostream& os = std::cout) const;
 	std::string toString()const;//转为字符串
 	virtual ~Date() {};
 	void currentDate();//将对象赋值为当前日期

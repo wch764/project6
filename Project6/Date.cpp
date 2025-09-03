@@ -118,10 +118,17 @@ void Date::addDays(int days) {
     month = 1 + ltm->tm_mon;
     year = 1900 + ltm->tm_year;
 }
-void Date::displayDate()const
+void Date::displayDate(std::ostream& os)const
 {
-    cout <<setfill('0') << setw(2) << day << "/"
-        << setw(2) << month << "/" << year;
+    auto old_fill = os.fill();
+  
+     
+    os << std::setfill('0')
+        << std::setw(4) << year << '-'
+        << std::setw(2) << month << '-'
+        << std::setw(2) << day;
+    os.fill(old_fill);
+   
  }
 std::string Date::toString()const {
     return std::to_string(year) + "/" + std::to_string(month) + "/" + std::to_string(day);

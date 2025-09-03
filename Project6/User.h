@@ -34,6 +34,7 @@ public:
 
     void saveToFile(const string& filename) const override;
     void changePassword(const string& newPassword);
+	void changeUsername(const string& newUsername);
     string getUsername() const;
     string getPassword() const;
     string getName() const;

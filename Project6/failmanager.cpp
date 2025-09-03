@@ -4,6 +4,7 @@
 #include <string>   
 #include "systemlogger.h"
 #include"failmanager.h"
+#include <conio.h>
 using namespace std;
 bool validateInt(int& result, const string& prompt ) {
     string input;
@@ -44,3 +45,17 @@ bool validateInt(int& result, const string& prompt ) {
         return false;
     }
 }
+void clearInputBuffer() {
+    if (!_kbhit()) {
+        // 缓冲区为空，立即返回
+        return;
+    }
+
+    // 缓冲区有内容，清空
+    while (_kbhit()) {
+        _getch(); // 读取并丢弃字符
+    }
+
+    std::cout << "缓冲区已清空" << std::endl;
+}
+

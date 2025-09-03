@@ -16,7 +16,7 @@
 #include <algorithm>
 #include"failmanager.h"
 #include"reservemanager.h"
-
+#include"bookdetailpage.h"
 
 // 图书页面类
 class BookPage : public Page, public Action {
@@ -36,9 +36,9 @@ public:
     void deletebook();
     void modifybook();
     void addBookReview(Book& book);
-    void showCategoryBooks(BookCategory category) const;
-    void showBooksByCategory() const;
-    void searchBooksWithCategory() const;
+    void showCategoryBooks(BookCategory category) ;
+    void showBooksByCategory();
+    void searchBooksWithCategory() ;
     template<typename FieldGetter>
     vector<Book> exactSearchWithCategory(
         const string& query,
@@ -220,7 +220,6 @@ public:
         FieldGetter fieldGetter
     ) const {
         vector<pair<size_t, Book>> scoredBooks; // (LCS 分数, Book)
-
         for (const Book& book : books) {
             const string fieldValue = fieldGetter(book);
             size_t score = countCommonTokens(query, fieldValue); // 计算 LCS 分数
@@ -247,7 +246,7 @@ public:
         return results;
     }
 
-    void searchbooks() const
+    void searchbooks()
     {
         cout << "请选择搜索方式：\n";
         cout << "1. 精确搜索（完全匹配）\n";
@@ -281,7 +280,7 @@ public:
                     return;
                 }
                 cout << "请输入搜索内容：";
-                cin.ignore();
+                
                 string query;
                 getline(cin, query);
 
@@ -348,27 +347,62 @@ public:
                     return;
                 }
 
-                // 显示搜索结果
-                if (results.empty()) {
-                    cout << "未找到匹配的书籍。\n";
-                }
-                else {
-                    cout << "找到 " << results.size() << " 本书：\n";
-                    for (const Book& book : results) {
-                        cout << "ISBN: " << book.getISBN() << "\n";
-                        cout << "书名: " << book.getTitle() << "\n";
-                        cout << "作者: " << book.getAuthor() << "\n";
-                        cout << "可借数量: " << book.getAvailable() << "\n";
-                        cout << "----------------------------\n";
-                    }
+                displaySearchResults(results);
                 }
             }
 
         }
-    }
+    
+    void displaySearchResults(const vector<Book>& results)  {
+        if (results.empty()) {
+            cout << "未找到匹配的书籍。\n";
+            system("pause");
+            return;
+        }
 
-    void showAllBooks() const;
-    void borrowBook();
+        while (true) {
+            clearscreen();
+            cout << "找到 " << results.size() << " 本书：\n\n";
+
+            // 显示带序号的搜索结果
+            for (size_t i = 0; i < results.size(); ++i) {
+                cout << "[" << (i + 1) << "] ";
+                cout << "ISBN: " << results[i].getISBN() << "\n";
+                cout << "    书名: " << results[i].getTitle() << "\n";
+                cout << "    作者: " << results[i].getAuthor() << "\n";
+                cout << "    可借数量: " << results[i].getAvailable() << "\n";
+                cout << "    ----------------------------\n";
+            }
+
+            cout << "\n请选择要查看的书籍序号 (输入0退出)：";
+
+            int choice;
+            if (validateInt(choice)) {
+                if (choice == 0) {
+                    return; // 退出搜索结果页面
+                }
+                else if (choice >= 1 && choice <= static_cast<int>(results.size())) {
+                    // 创建并显示书籍详细页面
+                    auto borrowCallback = [this](const string& isbn) {
+                        this->borrowBook(isbn);
+                        };
+                    BookDetailPage detailPage(results[choice - 1], borrowCallback);
+                    detailPage.display();
+                    // 查看详细信息后返回到搜索结果页面
+                }
+                else {
+                    cout << "无效序号！请重新输入。\n";
+                    system("pause");
+                }
+            }
+            else {
+                cout << "输入无效！请输入数字。\n";
+                system("pause");
+            }
+        }
+    }
+    void showAllBooks() ;
+    void borrowBook(const string isbn);
     void renewBook();
     void returnBook();
     // 辅助函数：通过ISBN查找书名
@@ -445,7 +479,7 @@ public:
         }
     }
 
-   
+    void displayCategoryBooksWithSelection(const vector<Book>& bookList, const string& title);
 
     Date calculateAvailableDate(const string& isbn) {
         // 实现查找最早可借日期的逻辑
@@ -462,199 +496,6 @@ public:
         return earliest;
     
     }
-    void showNotifications() {
-        cout << "=== 消息中心 ===" << endl;
-
-        // 获取所有通知
-        auto allNotifications = currentUser->getAllNotifications();
-
-        if (allNotifications.empty()) {
-            cout << "没有新通知\n";
-            return;
-        }
-
-        // 按类型分组通知
-        vector<Notification> reservationNotifications;
-        vector<Notification> dueSoonNotifications;
-        vector<Notification> fineNotifications;
-        vector<Notification> otherNotifications;
-
-        for (const auto& noti : allNotifications) {
-            switch (noti.getType()) {
-            case Notification::RESERVATION_AVAILABLE:
-            case Notification::RESERVATION_EXPIRED:
-                reservationNotifications.push_back(noti);
-                break;
-            case Notification::DUE_SOON:
-                dueSoonNotifications.push_back(noti);
-                break;
-            case Notification::OVERDUE_FINE:
-                fineNotifications.push_back(noti);
-                break;
-            default:
-                otherNotifications.push_back(noti);
-                break;
-            }
-        }
-
-        // 显示预约通知
-        if (!reservationNotifications.empty()) {
-            cout << "\n【预约通知】" << endl;
-            vector<string> availableBooks;
-
-            for (const auto& noti : reservationNotifications) {
-                cout << "◆ " << noti.getMessage();
-                if (!noti.getIsRead()) cout << " [新]";
-                cout << endl;
-
-                if (noti.getType() == Notification::RESERVATION_AVAILABLE && !noti.getIsRead()) {
-                    availableBooks.push_back(noti.getBookIsbn());
-                }
-            }
-
-            // 处理预约确认
-            if (!availableBooks.empty()) {
-                cout << "\n是否要借阅这些预约图书？(y/n): ";
-                char choice;
-                cin >> choice;
-
-                if (choice == 'y' || choice == 'Y') {
-                    cout << "开始处理预约借阅..." << endl;
-                    for (const auto& isbn : availableBooks) {
-                        bool result = confirmborrow(isbn, currentUser->getUsername());
-                        if (result) {
-                            cout << "ISBN " << isbn << " 借阅确认成功" << endl;
-                        }
-                        else {
-                            cout << "ISBN " << isbn << " 借阅确认失败" << endl;
-                        }
-                    }
-
-                    // 清除已处理的预约通知
-                    currentUser->getAvailableReservations();
-                }
-            }
-        }
-
-        // 显示到期提醒
-        if (!dueSoonNotifications.empty()) {
-            cout << "\n【到期提醒】" << endl;
-            for (const auto& noti : dueSoonNotifications) {
-                cout << "◆ " << noti.getMessage();
-                if (!noti.getIsRead()) cout << " [新]";
-                cout << endl;
-            }
-
-            // 标记到期通知为已读（用户进入通知页面后）
-            currentUser->markDueNotificationsAsRead();
-            cout << "到期提醒已标记为已读" << endl;
-        }
-
-        // 显示罚款通知（永远显示为未读）
-        if (!fineNotifications.empty()) {
-            cout << "\n【罚款通知】" << endl;
-            double totalFine = 0.0;
-
-            for (const auto& noti : fineNotifications) {
-                cout << "◆ " << noti.getMessage() << " [未处理]" << endl;
-                totalFine += noti.getFineAmount();
-            }
-
-            cout << "您当前总计未交罚款: " << totalFine << " 元" << endl;
-            cout << "请尽快缴纳罚款，否则可能影响借阅权限！" << endl;
-        }
-
-        // 显示其他通知
-        if (!otherNotifications.empty()) {
-            cout << "\n【其他通知】" << endl;
-            for (const auto& noti : otherNotifications) {
-                cout << "◆ " << noti.getMessage();
-                if (!noti.getIsRead()) cout << " [新]";
-                cout << endl;
-            }
-        }
-
-        cout << "\n通知查看完毕。" << endl;
-    }
-    bool confirmborrow(const string& isbn, const string& username) {
-        // 添加这行作为第一行，确保函数被调用
-        cout << "*** CONFIRMBORROW 函数被调用 *** ISBN=" << isbn << " 用户=" << username << endl;
-
-        cout << "=== 确认借阅流程开始 ===" << endl;
-        cout << "ISBN: " << isbn << ", 用户: " << username << endl;
-
-        // 1. 查找图书
-        auto bookIt = find_if(books.begin(), books.end(),
-            [&isbn](const Book& b) { return b.getISBN() == isbn; });
-
-        if (bookIt == books.end()) {
-            cout << "错误：图书不存在" << endl;
-            return false;
-        }
-
-        Book& book = *bookIt;
-        cout << "找到图书: " << book.getTitle() << ", 可借数量: " << book.getAvailable() << endl;
-
-        // 2. 检查图书是否可借
-        if (!book.isAvailable()) {
-            cout << "该书当前不可借，可用数量: " << book.getAvailable() << endl;
-            return false;
-        }
-
-        // 3. 查找用户的预约记录
-        cout << "开始查找预约记录..." << endl;
-        auto reservationIt = find_if(borrowInfos.begin(), borrowInfos.end(),
-            [&](BorrowInfo& bi) {
-                cout << "检查记录: 用户=" << bi.getReaderUsername()
-                    << " ISBN=" << bi.getBookISBN()
-                    << " 预约=" << (bi.is_Reservation() ? "是" : "否")
-                    << " 已还=" << (bi.isReturned() ? "是" : "否") << endl;
-
-                return bi.getBookISBN() == isbn &&
-                    bi.getReaderUsername() == username &&
-                    bi.is_Reservation() &&
-                    !bi.isReturned();
-            });
-
-        if (reservationIt == borrowInfos.end()) {
-            cout << "错误：未找到该用户的有效预约记录" << endl;
-            cout << "borrowInfos总数: " << borrowInfos.size() << endl;
-            return false;
-        }
-
-        cout << "*** 找到预约记录，开始转换... ***" << endl;
-
-        // 4. 转换预约记录为借阅记录
-        BorrowInfo& reservation = *reservationIt;
-
-        // 设置新的借阅日期和应还日期
-        Date currentDate = Date::currentdate();
-        reservation.setBorrowDate(currentDate);
-        reservation.setDueDate(BorrowInfo::calculateDueDate(currentDate));
-
-        // 转换为正常借阅记录
-        reservation.converttoborrow();
-
-        cout << "预约记录已转换为借阅记录" << endl;
-        cout << "  - 借阅日期: " << reservation.getBorrowDate().toString() << endl;
-        cout << "  - 应还日期: " << reservation.getDueDate().toString() << endl;
-
-        // 5. 更新图书状态
-        if (!book.borrowBook()) {
-            cout << "错误：图书借阅状态更新失败" << endl;
-            return false;
-        }
-
-        // 6. 从预约队列中移除
-        if (reservationManager.fulfillReservation(isbn)) {
-            cout << "已从预约队列中移除" << endl;
-        }
-        else {
-            cout << "警告：从预约队列移除失败" << endl;
-        }
-
-        cout << "*** CONFIRMBORROW 成功完成 *** 应还日期：" << reservation.getDueDate().toString() << endl;
-        return true;
-    }
+    
        
 };

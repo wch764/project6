@@ -60,6 +60,12 @@
     <ClCompile Include="systemlogger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="bookdetailpage.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="bookdetailpage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="readers.dat">
